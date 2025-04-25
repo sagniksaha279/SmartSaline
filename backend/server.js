@@ -322,6 +322,46 @@ app.get('/validate-token', authenticate, (req, res) => {
     });
 });
 
+
+// Get single patient
+app.get('/patients/:patient_id', authenticate, async (req, res) => {
+    try {
+        const [patients] = await pool.query('SELECT * FROM patients WHERE patient_id = ?', [req.params.patient_id]);
+        if (patients.length === 0) return res.status(404).send('Patient not found');
+        res.send(patients[0]);
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
+});
+
+// Update patient
+app.put('/patients/:patient_id', authenticate, async (req, res) => {
+    const { name, age, gender, medical_history, current_condition, contact_number } = req.body;
+    
+    try {
+        await pool.query(
+            'UPDATE patients SET name = ?, age = ?, gender = ?, medical_history = ?, current_condition = ?, contact_number = ? WHERE patient_id = ?',
+            [name, age, gender, medical_history, current_condition, contact_number, req.params.patient_id]
+        );
+        res.send('Patient updated');
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
+});
+
+// Delete patient
+app.delete('/patients/:patient_id', authenticate, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM patients WHERE patient_id = ?', [req.params.patient_id]);
+        res.send('Patient deleted');
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
