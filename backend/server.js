@@ -4,7 +4,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-
+import nodemailer from 'nodemailer';
+import path from 'path';
 
 dotenv.config();
 
@@ -12,7 +13,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'https://smart-saline.netlify.app', // Or your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
 app.use(bodyParser.json());
 
 // Database connection
@@ -54,17 +58,115 @@ app.get('/', (req, res) => {
     res.send('IV Monitoring Server is running!');
 });
 
-// Login route (simple password check)
+
+
+app.post("/request-trial", async (req, res) => {
+    const { name, email, phone, organization, designation, purpose, students, startDate } = req.body;
+  
+    if (!name || !email || !phone || !organization || !designation || !purpose || !students || !startDate) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+  
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.SMARTMERIT_EMAIL,
+            pass: process.env.SMARTMERIT_APP_PASSWORD
+        }
+    });
+    
+    const mailOptions = {
+        from: email,
+        to: "sahasagnik279@gmail.com",
+        subject: "Request for SmartMerit Free Trial Access",
+        text: `
+        Dear SmartMerit Team,
+        
+        I would like to request access to the free trial version of SmartMerit. Please find my details below:
+        
+        Name: ${name}
+        Email: ${email}
+        Phone: ${phone}
+        Organization/School: ${organization}
+        Designation: ${designation}
+        Purpose of Use: ${purpose}
+        Expected Number of Students: ${students}
+        Preferred Trial Start Date: ${startDate}
+        
+        Looking forward to your confirmation.
+        
+        Best regards,
+        ${name}
+        `
+    };
+  
+    try {
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Trial request sent successfully!" });
+    } catch (error) {
+        console.error("Email error:", error);
+        res.status(500).json({ success: false, message: "Failed to send email" });
+    }
+});
+
+app.post("/submit-feedback", async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (!message) {
+            return res.status(400).json({ error: "Feedback cannot be empty" });
+        }
+    
+        db.query("INSERT INTO feedback (message) VALUES (?)", [message], (err) => {
+            if (err) {
+                return res.status(500).json({ error: "Database error", details: err.message });
+            }
+            res.status(201).json({ message: "Thank you for sending us feedback! 😊 It helps us get better and better! 🚀✨" });
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Server error", details: err.message });
+    }
+});
+
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     
+    // Validate input
+    if (!email || !password) {
+        return res.status(400).send('Email and password are required');
+    }
+
     db.query('SELECT * FROM hospital_staff WHERE email = ?', [email], (err, users) => {
-        if (err || users.length === 0 || users[0].password_hash !== password) {
-            return res.status(400).send('Invalid credentials');
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).send('Database error');
+        }
+        
+        if (users.length === 0) {
+            return res.status(400).send('User not found');
         }
 
-        const token = jwt.sign({ staff_id: users[0].staff_id }, process.env.JWT_SECRET, { expiresIn: '8h' });
-        res.send({ token, user: { name: users[0].name, role: users[0].role } });
+        const user = users[0];
+        
+        // Compare plaintext password (replace with bcrypt.compare() later)
+        if (user.password_hash !== password) {
+            return res.status(400).send('Invalid password');
+        }
+
+        // Generate token
+        const token = jwt.sign(
+            { staff_id: user.staff_id }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '8h' }
+        );
+        
+        res.send({ 
+            token, 
+            user: { 
+                name: user.name, 
+                role: user.role,
+                staff_id: user.staff_id // Include for frontend use
+            } 
+        });
     });
 });
 
@@ -195,6 +297,16 @@ app.post('/alerts/:alert_id/resolve', authenticate, (req, res) => {
             res.send('Alert resolved');
         }
     );
+});
+
+app.get('/validate-token', authenticate, (req, res) => {
+    res.send({ 
+        user: {
+            name: req.user.name,
+            role: req.user.role,
+            staff_id: req.user.staff_id
+        }
+    });
 });
 
 // Start server
