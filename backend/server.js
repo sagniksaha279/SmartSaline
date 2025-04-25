@@ -1,5 +1,5 @@
 import express from 'express';
-import mysql from 'mysql2';
+import mysql from 'mysql2/promise'; // Using promise-based API
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -19,46 +19,51 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Database connection
-const db = mysql.createConnection({
-    host: process.env.DB_HOST ,
-    user: process.env.DB_USER ,
+// Database connection pool (better than single connection)
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME ,
-    port: process.env.DB_PORT
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// Connect to database
-db.connect((err) => {
-    if (err) {
+// Test database connection
+async function testConnection() {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Successfully connected to the database');
+        connection.release();
+    } catch (err) {
         console.error('Database connection failed:', err);
-        return;
     }
-    console.log('Successfully connected to the database');
-});
+}
+testConnection();
 
 // Authentication Middleware
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) return res.status(401).send('Access denied');
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(401).send('Invalid token');
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const [users] = await pool.query('SELECT * FROM hospital_staff WHERE staff_id = ?', [decoded.staff_id]);
         
-        db.query('SELECT * FROM hospital_staff WHERE staff_id = ?', [decoded.staff_id], (err, users) => {
-            if (err || users.length === 0) return res.status(401).send('Invalid token');
-            req.user = users[0];
-            next();
-        });
-    });
+        if (users.length === 0) return res.status(401).send('Invalid token');
+        req.user = users[0];
+        next();
+    } catch (err) {
+        return res.status(401).send('Invalid token');
+    }
 };
 
 // Sample route
 app.get('/', (req, res) => {
     res.send('IV Monitoring Server is running!');
 });
-
-
 
 app.post("/request-trial", async (req, res) => {
     const { name, email, phone, organization, designation, purpose, students, startDate } = req.body;
@@ -116,30 +121,22 @@ app.post("/submit-feedback", async (req, res) => {
             return res.status(400).json({ error: "Feedback cannot be empty" });
         }
     
-        db.query("INSERT INTO feedback (message) VALUES (?)", [message], (err) => {
-            if (err) {
-                return res.status(500).json({ error: "Database error", details: err.message });
-            }
-            res.status(201).json({ message: "Thank you for sending us feedback! 😊 It helps us get better and better! 🚀✨" });
-        });
+        await pool.query("INSERT INTO feedback (message) VALUES (?)", [message]);
+        res.status(201).json({ message: "Thank you for sending us feedback! 😊 It helps us get better and better! 🚀✨" });
     } catch (err) {
         res.status(500).json({ error: "Server error", details: err.message });
     }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
-    // Validate input
     if (!email || !password) {
         return res.status(400).send('Email and password are required');
     }
 
-    db.query('SELECT * FROM hospital_staff WHERE email = ?', [email], (err, users) => {
-        if (err) {
-            console.error('Database error:', err);
-            return res.status(500).send('Database error');
-        }
+    try {
+        const [users] = await pool.query('SELECT * FROM hospital_staff WHERE email = ?', [email]);
         
         if (users.length === 0) {
             return res.status(400).send('User not found');
@@ -164,13 +161,16 @@ app.post('/login', (req, res) => {
             user: { 
                 name: user.name, 
                 role: user.role,
-                staff_id: user.staff_id // Include for frontend use
+                staff_id: user.staff_id
             } 
         });
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
-// Device authentication route (simple token check)
+// Device authentication route
 app.post('/device-auth', (req, res) => {
     const { device_token } = req.body;
     
@@ -182,70 +182,79 @@ app.post('/device-auth', (req, res) => {
 });
 
 // Add a new patient
-app.post('/patients', authenticate, (req, res) => {
+app.post('/patients', authenticate, async (req, res) => {
     const { name, age, gender, medical_history, current_condition, contact_number } = req.body;
     
-    db.query(
-        'INSERT INTO patients (name, age, gender, medical_history, current_condition, contact_number) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, age, gender, medical_history, current_condition, contact_number],
-        (err, result) => {
-            if (err) return res.status(500).send('Database error');
-            res.status(201).send({ patient_id: result.insertId });
-        }
-    );
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO patients (name, age, gender, medical_history, current_condition, contact_number) VALUES (?, ?, ?, ?, ?, ?)',
+            [name, age, gender, medical_history, current_condition, contact_number]
+        );
+        res.status(201).send({ patient_id: result.insertId });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
 // Get all patients
-app.get('/patients', authenticate, (req, res) => {
-    db.query('SELECT * FROM patients', (err, patients) => {
-        if (err) return res.status(500).send('Database error');
+app.get('/patients', authenticate, async (req, res) => {
+    try {
+        const [patients] = await pool.query('SELECT * FROM patients');
         res.send(patients);
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
 // Start a new IV session
-app.post('/sessions', authenticate, (req, res) => {
+app.post('/sessions', authenticate, async (req, res) => {
     const { patient_id, bottle_capacity, initial_saline_level } = req.body;
     
-    db.query(
-        'INSERT INTO iv_sessions (patient_id, bottle_capacity, initial_saline_level) VALUES (?, ?, ?)',
-        [patient_id, bottle_capacity, initial_saline_level],
-        (err, result) => {
-            if (err) return res.status(500).send('Database error');
-            res.status(201).send({ session_id: result.insertId });
-        }
-    );
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO iv_sessions (patient_id, bottle_capacity, initial_saline_level) VALUES (?, ?, ?)',
+            [patient_id, bottle_capacity, initial_saline_level]
+        );
+        res.status(201).send({ session_id: result.insertId });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
 // ESP32 sends data
-app.post('/device-data', (req, res) => {
+app.post('/device-data', async (req, res) => {
     const { device_token, session_id, bpm, flow_rate, saline_level, is_emergency, emergency_reason } = req.body;
 
-    // Verify device token
     if (device_token !== process.env.DEVICE_TOKEN) {
         return res.status(401).send('Invalid device token');
     }
 
-    db.query(
-        'INSERT INTO vital_readings (session_id, bpm, flow_rate, saline_level, is_emergency, emergency_reason) VALUES (?, ?, ?, ?, ?, ?)',
-        [session_id, bpm, flow_rate, saline_level, is_emergency, emergency_reason],
-        (err) => {
-            if (err) return res.status(500).send('Database error');
-            
-            if (is_emergency) {
-                const alertType = getAlertType(emergency_reason);
-                db.query(
+    try {
+        await pool.query(
+            'INSERT INTO vital_readings (session_id, bpm, flow_rate, saline_level, is_emergency, emergency_reason) VALUES (?, ?, ?, ?, ?, ?)',
+            [session_id, bpm, flow_rate, saline_level, is_emergency, emergency_reason]
+        );
+        
+        if (is_emergency) {
+            const alertType = getAlertType(emergency_reason);
+            try {
+                await pool.query(
                     'INSERT INTO alerts (session_id, alert_type, message) VALUES (?, ?, ?)',
-                    [session_id, alertType, emergency_reason],
-                    (err) => {
-                        if (err) console.error('Failed to create alert:', err);
-                    }
+                    [session_id, alertType, emergency_reason]
                 );
+            } catch (alertErr) {
+                console.error('Failed to create alert:', alertErr);
             }
-            
-            res.status(200).send('Data received');
         }
-    );
+        
+        res.status(200).send('Data received');
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
 function getAlertType(reason) {
@@ -255,48 +264,52 @@ function getAlertType(reason) {
 }
 
 // Dashboard endpoint
-app.get('/dashboard/:session_id', authenticate, (req, res) => {
+app.get('/dashboard/:session_id', authenticate, async (req, res) => {
     const { session_id } = req.params;
     
-    db.query('SELECT * FROM iv_sessions WHERE session_id = ?', [session_id], (err, session) => {
-        if (err || session.length === 0) return res.status(404).send('Session not found');
+    try {
+        const [sessions] = await pool.query('SELECT * FROM iv_sessions WHERE session_id = ?', [session_id]);
+        if (sessions.length === 0) return res.status(404).send('Session not found');
         
-        db.query('SELECT * FROM patients WHERE patient_id = ?', [session[0].patient_id], (err, patient) => {
-            if (err || patient.length === 0) return res.status(404).send('Patient not found');
-            
-            db.query('SELECT * FROM vital_readings WHERE session_id = ? ORDER BY timestamp DESC LIMIT 100', [session_id], (err, readings) => {
-                db.query('SELECT * FROM alerts WHERE session_id = ? AND resolved = FALSE ORDER BY timestamp DESC', [session_id], (err, alerts) => {
-                    const latestReading = readings[0];
-                    const hoursRemaining = latestReading.flow_rate > 0 ? 
-                        latestReading.saline_level / (latestReading.flow_rate * 60) : 0;
+        const [patients] = await pool.query('SELECT * FROM patients WHERE patient_id = ?', [sessions[0].patient_id]);
+        if (patients.length === 0) return res.status(404).send('Patient not found');
+        
+        const [readings] = await pool.query('SELECT * FROM vital_readings WHERE session_id = ? ORDER BY timestamp DESC LIMIT 100', [session_id]);
+        const [alerts] = await pool.query('SELECT * FROM alerts WHERE session_id = ? AND resolved = FALSE ORDER BY timestamp DESC', [session_id]);
+        
+        const latestReading = readings[0];
+        const hoursRemaining = latestReading && latestReading.flow_rate > 0 ? 
+            latestReading.saline_level / (latestReading.flow_rate * 60) : 0;
 
-                    res.send({
-                        patient: patient[0],
-                        session: session[0],
-                        latestReading,
-                        readings,
-                        alerts,
-                        prediction: {
-                            hoursRemaining,
-                            depletionTime: new Date(Date.now() + hoursRemaining * 60 * 60 * 1000)
-                        }
-                    });
-                });
-            });
+        res.send({
+            patient: patients[0],
+            session: sessions[0],
+            latestReading,
+            readings,
+            alerts,
+            prediction: {
+                hoursRemaining,
+                depletionTime: new Date(Date.now() + hoursRemaining * 60 * 60 * 1000)
+            }
         });
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
 // Resolve alert
-app.post('/alerts/:alert_id/resolve', authenticate, (req, res) => {
-    db.query(
-        'UPDATE alerts SET resolved = TRUE, resolved_time = NOW() WHERE alert_id = ?',
-        [req.params.alert_id],
-        (err) => {
-            if (err) return res.status(500).send('Database error');
-            res.send('Alert resolved');
-        }
-    );
+app.post('/alerts/:alert_id/resolve', authenticate, async (req, res) => {
+    try {
+        await pool.query(
+            'UPDATE alerts SET resolved = TRUE, resolved_time = NOW() WHERE alert_id = ?',
+            [req.params.alert_id]
+        );
+        res.send('Alert resolved');
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).send('Database error');
+    }
 });
 
 app.get('/validate-token', authenticate, (req, res) => {
