@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-    origin: 'https://smart-saline.netlify.app', // Or your frontend URL
+    origin: 'https://smart-saline-monitor.netlify.app', // Or your frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 app.use(bodyParser.json());
