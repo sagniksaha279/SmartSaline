@@ -6,6 +6,9 @@ const app = express();
 
 // Allow all origins (safe for dev, restrict in production)
 app.use(cors());
+app.get("/favicon.ico", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "favicon.ico"));
+});
 app.use(express.json());
 
 // MySQL connection pool
