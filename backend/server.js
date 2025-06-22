@@ -198,8 +198,7 @@ app.post('/api/verify-hospital-session', async (req, res) => {
     }
 });
 
-
-// Feedback API
+//feedback API
 app.post("/submit-feedback", async (req, res) => {
   try {
     const { message } = req.body;
@@ -207,10 +206,17 @@ app.post("/submit-feedback", async (req, res) => {
       return res.status(400).json({ error: "Feedback cannot be empty" });
     }
 
-    await query("INSERT INTO feedback (message) VALUES (?)", [message]);
-    res.status(201).json({ message: "Thank you for sending us feedback! 😊 It helps us get better and better! 🚀✨" });
+    await pool.query("INSERT INTO feedback (message) VALUES (?)", [message]);
+    res.status(201).json({ 
+      success: true,
+      message: "Thank you for your feedback! We appreciate your input." 
+    });
   } catch (err) {
-    res.status(500).json({ error: "Database error", details: err.message });
+    console.error('Feedback submission error:', err);
+    res.status(500).json({ 
+      error: "Failed to submit feedback",
+      details: err.message 
+    });
   }
 });
 
