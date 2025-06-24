@@ -223,52 +223,40 @@ app.post("/submit-feedback", async (req, res) => {
 //-----------ESP32------------------
 /* ------------------------------------------- */
 // Add these routes before the fallback error handler
-
-
-// ESP32 Data Endpoint
 app.post('/api/esp32-data', async (req, res) => {
   try {
-    const { patientId, salineLeft, flowRate, heartRate } = req.body;
-    const dropCount = req.body.dropCount ?? null;
-    if (!patientId || salineLeft === undefined || flowRate === undefined || heartRate === undefined) {
+    const { patientId, salineLeft, flowRate, heartRate, dropCount } = req.body;
+
+    if (!patientId || salineLeft === undefined || flowRate === undefined || heartRate === undefined || dropCount === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Calculate adjusted flow rate based on heart rate
-    const adjustedFlowRate = flowRate * (72 / heartRate); // 72 is normal heart rate
+    const adjustedFlowRate = flowRate * (72 / heartRate);
 
-    // Update patient record
     await pool.query(`
       UPDATE patients 
       SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
       WHERE patient_id = ?
-    `, [salineLeft, adjustedFlowRate, heartRate, patientId,dropCount]);
+    `, [salineLeft, adjustedFlowRate, heartRate, dropCount, patientId]); // ✅ Now includes dropCount
 
-    // Check for emergency conditions
-    const isEmergency = adjustedFlowRate > 100 || salineLeft < 10; // Threshold values
-    
+    const isEmergency = adjustedFlowRate > 100 || salineLeft < 10;
+
     if (isEmergency) {
-      // Trigger emergency alert
       await pool.query(`
         UPDATE patients 
         SET emergency_status = 1, emergency_time = NOW()
         WHERE patient_id = ?
       `, [patientId]);
-      
-      // Here you would typically send a notification to nurses
     }
 
-    res.json({ 
-      success: true,
-      adjustedFlowRate,
-      isEmergency 
-    });
+    res.json({ success: true, adjustedFlowRate, isEmergency });
 
   } catch (err) {
     console.error('ESP32 data error:', err.message);
     res.status(500).json({ error: 'Database error' });
   }
-}); 
+});
+
 
 
 // Emergency Stop Endpoint
