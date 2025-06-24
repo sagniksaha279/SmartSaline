@@ -246,6 +246,10 @@ app.post('/api/esp32-data', async (req, res) => {
     SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
     WHERE patient_id = ?`, [salineLeft, adjustedFlowRate, heartRate, dropCount, patientId]); // ✅ Correct order
  // ✅ Now includes dropCount
+    await pool.query(`
+      INSERT INTO drop_log (patient_id, drop_count)
+      VALUES (?, ?)
+    `, [patientId, dropCount]);
 
     const isEmergency = adjustedFlowRate > 100 || salineLeft < 10;
 
