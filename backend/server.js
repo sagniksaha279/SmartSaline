@@ -316,6 +316,65 @@ app.get('/api/emergency-patients', async (req, res) => {
   }
 });
 /*----------------------------------------- */
+/*___REQUEST TRIAL ______*/
+app.post("/request-saline-trial", async (req, res) => {
+  const {
+    name,
+    email,
+    phone,
+    organization,
+    designation,
+    purpose,
+    students,
+    startDate
+  } = req.body;
+
+  if (!name || !email || !phone || !organization || !designation || !purpose || !students || !startDate) {
+    return res.status(400).json({ success: false, message: "All fields are required" });
+  }
+
+  const nodemailer = require("nodemailer");
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.SMARTSALINE_EMAIL,
+      pass: process.env.SMARTSALINE_APP_PASSWORD
+    }
+  });
+
+  const mailOptions = {
+    from: email,
+    to: "sahasagnik279@gmail.com",
+    subject: "New SmartSaline Trial Request",
+    text: `
+Dear SmartSaline Team,
+
+You’ve received a new free trial request. Details below:
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+Hospital: ${organization}
+Role: ${designation}
+Purpose: ${purpose}
+Expected Patients: ${students}
+Preferred Start Date: ${startDate}
+
+The user has been informed that this trial is free and full access can be purchased after evaluation.
+
+Regards,  
+SmartSaline Web System
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: "Trial request sent successfully!" });
+  } catch (error) {
+    console.error("Email error:", error);
+    res.status(500).json({ success: false, message: "Failed to send email" });
+  }
+});
 
 
 
