@@ -239,7 +239,7 @@ app.post('/api/esp32-data', async (req, res) => {
     // Update patient record
     await pool.query(`
       UPDATE patients 
-      SET saline_left = ?, flow_rate = ?, heart_rate = ?, last_update = NOW()
+      SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
       WHERE patient_id = ?
     `, [salineLeft, adjustedFlowRate, heartRate, patientId]);
 
