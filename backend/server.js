@@ -224,11 +224,12 @@ app.post("/submit-feedback", async (req, res) => {
 /* ------------------------------------------- */
 // Add these routes before the fallback error handler
 
+
 // ESP32 Data Endpoint
 app.post('/api/esp32-data', async (req, res) => {
   try {
     const { patientId, salineLeft, flowRate, heartRate } = req.body;
-
+    const dropCount = req.body.dropCount ?? null;
     if (!patientId || salineLeft === undefined || flowRate === undefined || heartRate === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -241,7 +242,7 @@ app.post('/api/esp32-data', async (req, res) => {
       UPDATE patients 
       SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
       WHERE patient_id = ?
-    `, [salineLeft, adjustedFlowRate, heartRate, patientId]);
+    `, [salineLeft, adjustedFlowRate, heartRate, patientId,dropCount]);
 
     // Check for emergency conditions
     const isEmergency = adjustedFlowRate > 100 || salineLeft < 10; // Threshold values
@@ -267,7 +268,8 @@ app.post('/api/esp32-data', async (req, res) => {
     console.error('ESP32 data error:', err.message);
     res.status(500).json({ error: 'Database error' });
   }
-});
+}); 
+
 
 // Emergency Stop Endpoint
 app.post('/api/emergency-stop', async (req, res) => {
