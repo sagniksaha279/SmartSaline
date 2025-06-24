@@ -232,12 +232,20 @@ app.post('/api/esp32-data', async (req, res) => {
     }
 
     const adjustedFlowRate = flowRate * (72 / heartRate);
+    console.log("Updating patient:", {
+      patientId,
+      salineLeft,
+      flowRate,
+      heartRate,
+      dropCount
+    });
 
+    
     await pool.query(`
-      UPDATE patients 
-      SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
-      WHERE patient_id = ?
-    `, [salineLeft, adjustedFlowRate, heartRate, dropCount, patientId]); // ✅ Now includes dropCount
+    UPDATE patients 
+    SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
+    WHERE patient_id = ?`, [salineLeft, adjustedFlowRate, heartRate, dropCount, patientId]); // ✅ Correct order
+ // ✅ Now includes dropCount
 
     const isEmergency = adjustedFlowRate > 100 || salineLeft < 10;
 
