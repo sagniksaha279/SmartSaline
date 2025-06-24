@@ -269,6 +269,9 @@ app.post('/api/esp32-data', async (req, res) => {
   }
 });
 
+app.get('/api/esp32-data', (req, res) => {
+  res.send("✅ This endpoint is POST-only. Please use a POST request.");
+});
 
 
 // Emergency Stop Endpoint
@@ -321,6 +324,20 @@ app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>🩺 SmartSaline Backend API</h1>
+    <p>This is the backend server for the SmartSaline IV Monitoring System.</p>
+    <ul>
+      <li>✅ <strong>POST</strong> /api/esp32-data – Data upload from ESP32</li>
+      <li>✅ <strong>GET</strong> /api/patient/:id – Patient monitoring</li>
+      <li>✅ <strong>POST</strong> /api/emergency-stop – Trigger manual emergency</li>
+    </ul>
+    <p>Visit the frontend: <a href="https://smartsaline.netlify.app" target="_blank">SmartSaline Portal</a></p>
+  `);
+});
+
 
 // Start server
 module.exports = app;
