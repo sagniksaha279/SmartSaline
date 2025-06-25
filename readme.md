@@ -48,8 +48,12 @@ SmartSaline is a real-time IV drop monitoring and alert system using ESP32/ESP82
   "dropCount": 34
 }
 ```
+---
+
 ## License
 This project is proprietary software. All rights reserved by TechCure.
+
+---
 
 ## Contact
 For inquiries or support, please email: sahasagnik279@gmail.com
