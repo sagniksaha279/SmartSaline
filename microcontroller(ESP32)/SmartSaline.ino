@@ -4,22 +4,22 @@
 #include "ThingSpeak.h"
 
 // -------------------- Wi-Fi & Backend Config --------------------
-const char* ssid = "Hudson Bay";
-const char* password = "sagnik278";
+const char* ssid = "Your_Wifi_Name";
+const char* password = "Your_Wifi_Password";
 const char* serverUrl = "https://smart-saline.vercel.app/api/esp32-data";
 const int patientId = 286;
 
 // -------------------- ThingSpeak Config --------------------
-const char* apiKey = "84WAA8ZYITSG9R03";  // Replace with yours
-const long channelID = 2995913;           // Replace with your channel ID
+const char* apiKey = "Your_ThingSpeak_API_key";  // Replace with yours
+const long channelID = 25***2;           // Replace with your channel ID
 
-WiFiClientSecure secureClient;  // For HTTPS (Vercel)
-WiFiClient thingSpeakClient;    // For HTTP (ThingSpeak)
+WiFiClientSecure secureClient; 
+WiFiClient thingSpeakClient;   
 HTTPClient http;
 
 // -------------------- Pins & IV Drop Detection --------------------
-const int irSensorPin = 34;   // ADC pin (GPIO34 for ESP32)
-const int buzzerPin = 5;      // Any digital pin
+const int irSensorPin = 34;   
+const int buzzerPin = 5;      
 
 #define NUM_SAMPLES 10
 int samples[NUM_SAMPLES];
@@ -33,7 +33,7 @@ int deltaThreshold = 50;
 int dropThreshold = 600;
 
 unsigned long previousMillis = 0;
-const unsigned long interval = 60000;  // 60 seconds
+const unsigned long interval = 60000;  
 
 int getFilteredIRValue() {
   samples[sampleIndex] = analogRead(irSensorPin);
@@ -71,7 +71,7 @@ void setup() {
   Serial.print("📡 IP Address: ");
   Serial.println(WiFi.localIP());
 
-  secureClient.setInsecure();  // Accept all SSL certs for dev
+  secureClient.setInsecure(); 
 
   ThingSpeak.begin(thingSpeakClient);
 
@@ -81,7 +81,7 @@ void setup() {
 
 void loop() {
   int irValue = getFilteredIRValue();
-  float irVoltage = (irValue * 3.3) / 4095.0;  // ESP32 ADC is 12-bit (0–4095)
+  float irVoltage = (irValue * 3.3) / 4095.0; 
   int delta = abs(irValue - prevIrValue);
   prevIrValue = irValue;
 
@@ -114,7 +114,7 @@ void loop() {
 
     // ✅ Send to your backend (Vercel)
     if (WiFi.status() == WL_CONNECTED) {
-      http.setTimeout(10000);  // Optional: 10 second timeout
+      http.setTimeout(10000); 
       http.begin(secureClient, serverUrl);
       http.addHeader("Content-Type", "application/json");
 
