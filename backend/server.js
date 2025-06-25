@@ -282,6 +282,32 @@ app.post('/api/emergency-stop', async (req, res) => {
   }
 });
 
+// ✅ GET emergency status for ESP32
+app.get('/api/emergency-status/:patientId', async (req, res) => {
+  try {
+    const { patientId } = req.params;
+
+    const [rows] = await pool.query(`
+      SELECT emergency_status 
+      FROM patients 
+      WHERE patient_id = ?
+    `, [patientId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Patient not found' });
+    }
+
+    const isEmergency = !!rows[0].emergency_status;
+
+    res.json({ success: true, patientId, emergency: isEmergency });
+
+  } catch (err) {
+    console.error('Error checking emergency status:', err.message);
+    res.status(500).json({ success: false, error: 'Database error' });
+  }
+});
+
+
 // Get Emergency Patients
 app.get('/api/emergency-patients', async (req, res) => {
   try {
