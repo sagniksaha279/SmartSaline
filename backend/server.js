@@ -2,17 +2,14 @@ const path = require('path');
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
-
 const app = express();
 
-// Allow all origins (safe for dev, restrict in production)
 app.use(cors());
 app.get("/favicon.ico", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "favicon.ico"));
 });
 app.use(express.json());
 
-// MySQL connection pool
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -20,13 +17,11 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   connectTimeout: 10000,    
- // acquireTimeout: 10000,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
 
-// Confirm DB connection
 pool.getConnection()
   .then(conn => {
     console.log('✅ Connected to SmartSaline DB');
@@ -38,8 +33,7 @@ pool.getConnection()
   });
 
 /* ------------------ ROUTES ------------------ */
-
-// ✅ Admin login
+//Admin login
 app.post('/login', async (req, res) => {
   try {
     const { hospitalId, adminId, password } = req.body;
@@ -57,9 +51,7 @@ app.post('/login', async (req, res) => {
     if (results.length === 0) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
-
     const admin = results[0];
-
     if (admin.adminPassword !== password) {
       return res.status(401).json({ success: false, message: 'Incorrect password' });
     }
@@ -73,14 +65,13 @@ app.post('/login', async (req, res) => {
         contact: admin.contact
       }
     });
-
   } catch (err) {
     console.error('Login error:', err.message);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
-// ✅ Get all patients
+//Get all patients
 app.get('/api/patients', async (req, res) => {
   try {
     const [patients] = await pool.query(`
@@ -93,7 +84,7 @@ app.get('/api/patients', async (req, res) => {
   }
 });
 
-// ✅ Get one patient by ID
+//Get one patient by ID
 app.get('/api/patient/:pid', async (req, res) => {
   try {
     const pid = req.params.pid;
@@ -110,9 +101,7 @@ app.get('/api/patient/:pid', async (req, res) => {
   }
 });
 
-// Add these routes to server.js before the fallback error handler
-
-// ✅ Get all admins
+//Get all admins
 app.get('/api/admins', async (req, res) => {
   try {
     const [admins] = await pool.query(`SELECT * FROM admin`);
@@ -123,7 +112,7 @@ app.get('/api/admins', async (req, res) => {
   }
 });
 
-// ✅ Add new admin
+//Add new admin
 app.post('/api/admins', async (req, res) => {
   try {
     const { admin_id, name, password, contact, floor, check_hospital_id } = req.body;
@@ -131,7 +120,6 @@ app.post('/api/admins', async (req, res) => {
     if (!admin_id || !name || !password || !contact || !floor || !check_hospital_id) {
       return res.status(400).json({ error: 'All fields are required' });
     }
-
     await pool.query(`
       INSERT INTO admin (admin_id, name, password, contact, floor, check_hospital_id)
       VALUES (?, ?, ?, ?, ?, ?)
@@ -144,7 +132,7 @@ app.post('/api/admins', async (req, res) => {
   }
 });
 
-// ✅ Delete admin
+//Delete admin
 app.delete('/api/admins/:adminId', async (req, res) => {
   try {
     const adminId = req.params.adminId;
@@ -161,7 +149,7 @@ app.delete('/api/admins/:adminId', async (req, res) => {
   }
 });
 
-// ✅ Delete patient
+//Delete patient
 app.delete('/api/patients/:patientId', async (req, res) => {
   try {
     const patientId = req.params.patientId;
@@ -221,8 +209,6 @@ app.post("/submit-feedback", async (req, res) => {
 });
 
 //-----------ESP32------------------
-/* ------------------------------------------- */
-// Add these routes before the fallback error handler
 app.post('/api/esp32-data', async (req, res) => {
   try {
     const { patientId, salineLeft, flowRate, heartRate, dropCount } = req.body;
@@ -244,8 +230,8 @@ app.post('/api/esp32-data', async (req, res) => {
     await pool.query(`
     UPDATE patients 
     SET saline_left = ?, flow_rate = ?, heart_rate = ?, drop_count = ?, last_update = NOW()
-    WHERE patient_id = ?`, [salineLeft, adjustedFlowRate, heartRate, dropCount, patientId]); // ✅ Correct order
- // ✅ Now includes dropCount
+    WHERE patient_id = ?`, [salineLeft, adjustedFlowRate, heartRate, dropCount, patientId]);
+    
     await pool.query(`
       INSERT INTO drop_log (patient_id, drop_count)
       VALUES (?, ?)
@@ -270,9 +256,8 @@ app.post('/api/esp32-data', async (req, res) => {
 });
 
 app.get('/api/esp32-data', (req, res) => {
-  res.send("✅ This endpoint is POST-only. Please use a POST request.");
+  res.send("This endpoint is POST-only. Please use a POST request.");
 });
-
 
 // Emergency Stop Endpoint
 app.post('/api/emergency-stop', async (req, res) => {
@@ -283,15 +268,11 @@ app.post('/api/emergency-stop', async (req, res) => {
       return res.status(400).json({ error: 'Patient ID is required' });
     }
 
-    // Update patient record
     await pool.query(`
       UPDATE patients 
       SET emergency_status = 1, emergency_time = NOW()
       WHERE patient_id = ?
     `, [patientId]);
-
-    // Here you would send a signal to ESP32 to stop flow
-    // This would require your ESP32 to poll this status
 
     res.json({ success: true });
 
@@ -315,7 +296,7 @@ app.get('/api/emergency-patients', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
-/*----------------------------------------- */
+
 /*___REQUEST TRIAL ______*/
 app.post("/request-saline-trial", async (req, res) => {
   const {
@@ -365,7 +346,7 @@ The user has been informed that this trial is free and full access can be purcha
 Regards,  
 SmartSaline Web System
     `
-  };
+};
 
   try {
     await transporter.sendMail(mailOptions);
