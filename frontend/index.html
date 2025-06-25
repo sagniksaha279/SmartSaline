@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSaline - TechCure</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" href="tech_Cure_logo.png" type="image/png">
+</head>
+<body>
+    <!--header-->
+    <div class="header">
+        <div class="quote">
+            <h2>TechCure - Smart IV Monitoring System</h2>
+            <p>TechCure: An IoT-based platform for real-time IV saline tracking and emergency alerting.</p> 
+        </div>
+        <div class="container">
+            <ul>
+                <li><a href="#main-container" target="_self">Home</a></li>
+                <li><a href="#how-it-works" target="_self">How it Works</a></li>
+                <li><a href="Register.html" target="_blank">Register</a></li>
+                <li><a href="#contact" target="_self">Contact</a></li>
+            </ul>
+        </div>
+    </div>    
+
+    <!--Main Content-->
+    <div class="main">
+        <div class="main-container" id="main-container">
+            <h1>Enhancing Patient Safety Through Intelligent IV Monitoring</h1>
+            <p>Track. Alert. Respond.</p>
+            <button><a href="Register.html" target="_blank">Start Monitoring</a></button>
+        </div>
+
+        <center><br><br><br><br><br>
+        <h1>Choose your Download Platform💻</h1>
+        <div class="download-container">
+            <button id="download-button" data-download-target="#download-content">
+                <i class="fa-solid fa-download"></i>
+            </button>
+            <div class="download-content" id="download-content">
+                <div class="download-header">
+                    <h2>Download Options</h2>
+                    <button data-download-close class="close-download-button">&times;</button>
+                </div>
+                <div class="download-body">
+                    <ul>
+                        <li><a href="working.html" class="download-option"><i class="fa-brands fa-android"></i> Android</a></li>
+                        <li><a href="working.html" class="download-option"><i class="fa-brands fa-apple"></i> Mac</a></li>
+                        <li><a href="https://smartsaline.netlify.app" class="download-option"><i class="fa-solid fa-desktop"></i> Desktop (Windows/Linux)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        </center>
+
+        <div class="announcement">
+            <h1>Notice</h1>
+            <marquee behavior="scroll" direction="left" scrollamount="6" loop="infinite">
+                <a>Join our beta testing phase - <a href="trial-request.html" style="text-decoration: none;"><b>Click Here</b></a></a> 
+            </marquee>
+        </div>
+
+        <!--How it works section-->
+        <div class="how-it-works" id="how-it-works">
+            <button id="htw-button" data-htw-target="#htw-content"><i class="fa-solid fa-circle-info"></i>&nbsp;&nbsp;How it Works</button>
+            <div class="htw-content" id="htw-content">
+                <div class="htw-header">
+                    <h1>How TechCure Works</h1>
+                    <button data-htw-close class="close-htw-button">&times;</button>
+                </div>
+                <div class="htw-body">
+                    <ul>
+                        <li><b>Sensor-Driven Monitoring - </b> ESP32 with flow and pulse sensors monitors IV flow rate and vitals.</li>
+                        <li><b>Real-Time Alerts - </b> System triggers buzzer and LED indicators if abnormal flow or saline depletion is detected.</li>
+                        <li><b>Emergency Notifications - </b> Automatic alerts are sent to nurses and backend when emergencies occur.</li>
+                        <li><b>Backend Integration - </b> Sends data to a secure server for logging, analysis, and dashboard visualization.</li>
+                        <li><b>Simulation Support - </b> Simulated mode for safe testing without physical hardware.</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="overlay"></div>
+        </div>
+
+        <!--Key Features-->
+        <h1 id="kf">Core Features</h1>
+        <div class="key-features">    
+            <div class="key-containers">
+                <h1>🩺</h1>
+                <h3>Real-Time IV Flow Tracking</h3>
+                <hr id="line">
+                <p>Continuously measures flow rate and saline level with alert mechanisms when deviations or depletion occur. Ensures timely medical intervention.</p>
+            </div>
+            <div class="key-containers">
+                <h1>📡</h1>
+                <h3>Emergency Triggering System</h3>
+                <hr id="line">
+                <p>Smart alert system using LEDs, buzzer, and backend notification when abnormal flow or critical health signs are detected.</p>
+            </div>
+            <div class="key-containers">
+                <h1>📊</h1>
+                <h3>Central Monitoring Dashboard</h3>
+                <hr id="line">
+                <p>Secure server backend with session-wise data logging, alert management, and predictive analysis of depletion time.</p>
+            </div>
+        </div>
+
+        <!--OUR MISSION-->
+        <div class="our-vision">
+            <img src="monitoring.gif" alt="IV Monitoring image">
+            <h1>OUR MISSION</h1>
+            <div class="our-aims">
+                <div class="aims">
+                    <h3>🔍<br>Detect Flow Anomalies</h3>
+                    <hr id="line">
+                    <p>Identify and respond to flow rate deviations instantly to prevent under-infusion or patient risk. TechCure helps caregivers act fast.</p>
+                </div>
+                <div class="aims">
+                    <h3>🚨<br>Enhance Emergency Response</h3>
+                    <hr id="line">
+                    <p>Support hospitals and clinics with instant alerts when saline drops too low or vitals are abnormal. A life-saving tech advantage.</p>
+                </div>
+                <div class="aims">
+                    <h3>🏥<br>Support Smart Hospitals</h3>
+                    <hr id="line">
+                    <p>Enable healthcare facilities with IoT-based monitoring tools that streamline patient care and improve operational safety.</p>
+                </div>
+            </div>
+        </div>
+
+        <!--Solutions Metrics-->
+        <div class="service-provided">
+            <h2>Why TechCure?</h2>
+            <div class="service-list">
+                <ul>
+                    <li><h4>98%</h4><p>Emergency Detection Accuracy</p></li>
+                    <li><h4>100%</h4><p>Real-Time Nurse Notification</p></li>
+                    <li><h4>24/7</h4><p>Monitoring Capability</p></li>
+                </ul>
+            </div>
+        </div>
+
+        <!--Feedback Form-->
+        <div class="feedback-form">
+            <h1>Send us your feedback</h1><br>
+            <form id="feedbackForm">
+                <div class="chat">
+                    <input type="text" id="feedback" placeholder="Enter your feedback here..." required>
+                    <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                    <button type="reset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+                </div>
+                <p id="feedbackMessage" style="margin-top: 10px; color: green;"></p>
+            </form>
+        </div>
+    </div>
+
+    <!--footer-->
+    <div class="footer" id="contact">
+        <h2>TechCure - Revolutionizing Patient IV Safety with IoT</h2>
+        <div class="footer-links">
+            <p><a href="privacy-policy.html" target="_blank">Privacy Policy</a><a href="terms-conditions.html" target="_blank">Terms & Conditions</a><a href="mailto:sahasagnik279@gmail.com">Mail us</a></p>
+        </div>
+        <p id="rights-reserved">&copy; All rights reserved by Tech Cure</p>
+        <p id="own-saying">Built with ❤️ & Tech - <span class="color-tech-tots"><a href="details-us.html">Tech Cure</a></span></p>
+    </div>
+
+    <!--link js file-->
+    <script src="script.js"></script>
+</body>
+</html>
