@@ -282,6 +282,25 @@ app.post('/api/emergency-stop', async (req, res) => {
   }
 });
 
+// ✅ Clear emergency status for a patient
+app.post('/api/clear-emergency', async (req, res) => {
+  const { patientId } = req.body;
+  if (!patientId) {
+    return res.status(400).json({ success: false, error: "Missing patientId" });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE patients SET emergency_status = 0 WHERE patient_id = ?',
+      [patientId]
+    );
+    res.json({ success: true, message: "Emergency status cleared" });
+  } catch (err) {
+    console.error("❌ Failed to clear emergency:", err.message);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 // ✅ GET emergency status for ESP32
 app.get('/api/emergency-status/:patientId', async (req, res) => {
   try {
