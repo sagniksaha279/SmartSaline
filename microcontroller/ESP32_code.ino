@@ -150,3 +150,6 @@ void loop() {
     dropCount = 0;
   }
 }
+// SmartSalineMonitor.ino
+// Real-time IV Flow Monitoring using ESP32, ThingSpeak, and Backend API
+// Year: 2025 Academic Innovation Project
