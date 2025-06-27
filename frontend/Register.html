@@ -35,6 +35,39 @@
       margin: 0 auto;
       padding-top: 100px;
     }
+    .login-container .card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-container .card {
+      position: relative;
+      overflow: hidden;
+    }
+    .login-container .card::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
+      z-index: 0;
+      filter: blur(15px);
+      opacity: 0.4;
+      border-radius: 20px;
+    }
+    .login-container .card > * {
+      position: relative;
+      z-index: 1;
+    }
+    .login-container .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
     .patient-count {
       font-size: 1.2rem;
       font-weight: bold;
@@ -115,6 +148,9 @@
     .patient-card:hover {
       box-shadow: 0 0 10px rgba(0,0,0,0.15);
     }
+    #connectedDevicesList li {
+      transition: background 0.3s ease, color 0.3s ease;
+    }
     .clickable-row {
       cursor: pointer;
     }
@@ -122,11 +158,12 @@
 </head>
 <body>
   <div style="text-align: center; margin-top: 40px;">
-    <h2 style="font-family: 'Segoe UI', sans-serif; color: #2c3e50; font-size: 28px; margin-bottom: 10px;">
+    <h2 style="font-family: 'Segoe UI', sans-serif; color: #2c3e50; font-size: 28px; margin-bottom: 10px; ">
       Welcome to the Patient Management Portal
     </h2>
     <p style="font-family: 'Segoe UI', sans-serif; color: #2c3e50; font-size: 16px; text-align: center; margin-top: 15px;">
       👋 Welcome! We're glad to have you here. Your role matters! 💼</p>
+    <button id="toggleNightMode" class="btn btn-sm btn-dark" style="position: fixed; top: 10px; right: 10px; z-index: 9999;">🌙 Night Mode</button>
   </div>
 
   <!-- Admin Login Section -->
@@ -182,7 +219,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <button id="viewDashboard" class="btn btn-info text-white fw-semibold shadow-sm px-4 py-2 rounded-pill"><i class="fas fa-users me-2"></i>View Dashboard</button>
       <div>
-        <h2>Admin Portal</h2>
+        <h2 class="page-title">Admin Portal</h2>
         <div id="adminInfo" class="text-muted"></div>
       </div>
       <button id="logoutBtn" class="btn btn-danger">Logout</button>
