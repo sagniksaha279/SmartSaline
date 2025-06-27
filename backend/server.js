@@ -329,8 +329,7 @@ app.get('/api/emergency-patients', async (req, res) => {
   try {
     const [patients] = await pool.query(`
       SELECT * FROM patients 
-      WHERE emergency_status = 1 
-         OR (drop_count = 0 AND drop_count IS NOT NULL)
+      WHERE emergency_status = 1
       ORDER BY emergency_time DESC
     `);
     res.json(patients);
