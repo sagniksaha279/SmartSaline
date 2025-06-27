@@ -324,13 +324,13 @@ app.get('/api/emergency-status/:patientId', async (req, res) => {
   }
 });
 
-
 // Get Emergency Patients
 app.get('/api/emergency-patients', async (req, res) => {
   try {
     const [patients] = await pool.query(`
       SELECT * FROM patients 
-      WHERE emergency_status = 1
+      WHERE emergency_status = 1 
+         OR (drop_count = 0 AND drop_count IS NOT NULL)
       ORDER BY emergency_time DESC
     `);
     res.json(patients);
