@@ -843,33 +843,48 @@ document.addEventListener('DOMContentLoaded', loadAllData);
 const toggleButton = document.getElementById("toggleNightMode");
 let nightMode = false;
 
-// Function to apply night or light mode styles
-function applyTheme(isNight) {
+// 🌙☀️ NIGHT MODE SCRIPT
+const toggleButton = document.getElementById("toggleNightMode");
+let nightMode = false;
+let autoModeApplied = false; // prevent repeated alerts
+
+// 🎨 Function to apply theme
+function applyTheme(isNight, showAlert = false) {
   nightMode = isNight;
   toggleButton.innerHTML = nightMode ? "☀️ Light Mode" : "🌙 Night Mode";
 
-  // Only change body background (soft black + yellow tint)
+  // Change only background
   document.body.style.background = nightMode
     ? "linear-gradient(135deg, rgba(120, 214, 153, 0.91), rgba(236, 236, 130, 0.96))"
     : "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
-}
 
-// ⏱️ Auto Night Mode after 6 PM
-function checkAutoNightMode() {
-  const now = new Date();
-  const hours = now.getHours();
-  if (hours >= 18) {
-    applyTheme(true);
-    alert("🌙 Good Evening! Switched to Night Mode automatically.");
+  // Show alert if required
+  if (showAlert) {
+    alert(nightMode
+      ? "🌙 Good Evening! Switched to Night Mode automatically."
+      : "☀️ Good Morning! Switched to Light Mode automatically.");
   }
 }
 
-// 🚨 Manual Toggle Button
+// ⏱️ Auto Mode Based on Time
+function checkAutoNightMode() {
+  const hours = new Date().getHours();
+  if (hours >= 18 || hours < 5) {
+    applyTheme(true, true);  // Night mode
+    autoModeApplied = true;
+  } else if (hours >= 5 && hours < 18) {
+    applyTheme(false, true); // Light mode
+    autoModeApplied = true;
+  }
+}
+
+// 🖱️ Manual Toggle (User choice always respected)
 toggleButton.addEventListener("click", () => {
   applyTheme(!nightMode);
 });
 
-// ✅ Run auto-switch on page load
+// 🚀 On Page Load
 document.addEventListener("DOMContentLoaded", () => {
   checkAutoNightMode();
 });
+
