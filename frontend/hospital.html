@@ -49,6 +49,7 @@
       background-color: #e6f0ff;
       transition: background-color 0.5s, border 0.5s;
     }
+
   </style>
 </head>
 <body>
@@ -58,7 +59,8 @@
         <h2>Hospital Management Portal</h2>
         <div class="text-muted">Manage admins and patients</div>
       </div>
-      <a href="Register.html" class="btn btn-primary">Back to Admin Portal</a>
+      <button id="toggleNightMode" class="btn btn-sm btn-dark" style="position: fixed; top: 1px; right: 1px; border-radius: 5px; font-size: medium; z-index: 999;">🌙 Night Mode</button>
+      <a href="Register.html" class="btn btn-primary" >Back to Admin Portal</a>
     </div>
     <button id="viewAdminDashboard" class="btn btn-primary text-white fw-semibold shadow-sm px-4 py-2 rounded-pill me-3">
       <i class="fas fa-user-shield me-2"></i>View Admins
@@ -280,12 +282,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="hospital.js"></script>
-  <!-- <script>
+  <script>
   document.addEventListener("contextmenu", function (e) {
     e.preventDefault();
     alert("Right-click is disabled on this portal 🔒");
   });
-</script> -->
+</script>
 
 </body>
 </html>
