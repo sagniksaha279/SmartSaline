@@ -424,8 +424,6 @@ SmartSaline Web System
   }
 });
 
-
-
 // Fallback error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
@@ -434,23 +432,46 @@ app.use((err, req, res, next) => {
 
 app.get('/', (req, res) => {
   res.send(`
-    <h1>🩺 SmartSaline Backend API</h1>
-    <p>This is the backend server for the SmartSaline IV Monitoring System.</p>
-    <ul>
-      <li>✅ <strong>POST</strong> /api/esp32-data – Data upload from ESP32</li>
-      <li>✅ <strong>GET</strong> /api/patient/:id – Patient monitoring</li>
-      <li>✅ <strong>POST</strong> /api/emergency-stop – Trigger manual emergency</li>
-    </ul>
-    <p>Visit the frontend: <a href="https://smartsaline.netlify.app" target="_blank">SmartSaline Portal</a></p>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>SmartSaline Backend</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f8fb;
+          color: #333;
+          text-align: center;
+          padding: 50px;
+        }
+        h1 {
+          font-size: 2.5rem;
+          color: #007BFF;
+        }
+        p {
+          font-size: 1.2rem;
+        }
+        a {
+          color: #28a745;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>🩺 SmartSaline Backend API</h1>
+      <p>Welcome to the backend server of the SmartSaline IV Monitoring System.</p>
+      <p>👉 Visit the frontend: <a href="https://smartsaline.netlify.app" target="_blank">SmartSaline Portal</a></p>
+      <p>✅ Thank you for visiting the backend portal.</p>
+    </body>
+    </html>
   `);
 });
 
-
 // Start server
 module.exports = app;
-
-// Start server
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`🚀 SmartSaline Backend running at http://localhost:${PORT}`);
-// });
