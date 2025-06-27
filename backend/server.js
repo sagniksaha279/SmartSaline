@@ -339,6 +339,30 @@ app.get('/api/emergency-patients', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
+
+// Clear Emergency Endpoint
+app.post('/api/clear-emergency', async (req, res) => {
+  try {
+    const { patientId } = req.body;
+
+    if (!patientId) {
+      return res.status(400).json({ error: 'Patient ID is required' });
+    }
+
+    await pool.query(`
+      UPDATE patients 
+      SET emergency_status = 0
+      WHERE patient_id = ?
+    `, [patientId]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error clearing emergency:', err.message);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+
 /*----------------------------------------- */
 /*___REQUEST TRIAL ______*/
 app.post("/request-saline-trial", async (req, res) => {
