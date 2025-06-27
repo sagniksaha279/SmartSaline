@@ -698,3 +698,38 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = window.location.href.split('#')[0];
   }
 });
+
+// NIGHT MODE
+const toggleButton = document.getElementById("toggleNightMode");
+let nightMode = false;
+
+// Function to apply night or light mode styles
+function applyTheme(isNight) {
+  nightMode = isNight;
+  toggleButton.innerHTML = nightMode ? "☀️ Light Mode" : "🌙 Night Mode";
+
+  // Only change body background (soft black + yellow tint)
+  document.body.style.background = nightMode
+    ? "linear-gradient(135deg, rgba(120, 214, 153, 0.91), rgba(236, 236, 130, 0.96))"
+    : "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
+}
+
+// ⏱️ Auto Night Mode after 6 PM
+function checkAutoNightMode() {
+  const now = new Date();
+  const hours = now.getHours();
+  if (hours >= 18) {
+    applyTheme(true);
+    alert("🌙 Good Evening! Switched to Night Mode automatically.");
+  }
+}
+
+// 🚨 Manual Toggle Button
+toggleButton.addEventListener("click", () => {
+  applyTheme(!nightMode);
+});
+
+// ✅ Run auto-switch on page load
+document.addEventListener("DOMContentLoaded", () => {
+  checkAutoNightMode();
+});
