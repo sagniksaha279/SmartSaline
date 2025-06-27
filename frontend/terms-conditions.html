@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="tech_Cure_logo.png" type="image/png">
+  <title>Terms and Conditions | Tech Cure</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4dc;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    .container {
+      max-width: 850px;
+      background-color: #fff;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+     background: linear-gradient(90deg, #007bff, #0056b3);
+      color: white;
+      padding: 16px;
+      font-size: 26px;
+      text-align: center;
+      border-radius: 6px;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      margin-top: 25px;
+      color: #222;
+      font-size: 20px;
+    }
+
+    p {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #555;
+    }
+
+    a {
+      color: #005df4;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    #footer-note {
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+        margin: 20px 10px;
+      }
+
+      h1 {
+        font-size: 22px;
+        padding: 12px;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Terms and Conditions</h1>
+
+    <h2>1. Introduction</h2>
+    <p>Welcome to <strong>Smart Saline</strong> by <strong>Tech Cure</strong>. By accessing or using our platform, you agree to comply with and be bound by the following terms and conditions.</p>
+
+    <h2>2. Use of Services</h2>
+    <p>You agree to use our services responsibly and only for lawful purposes. Misuse or unauthorized access may result in suspension or legal action.</p>
+
+    <h2>3. User Responsibilities</h2>
+    <p>Users are responsible for maintaining the confidentiality of their login credentials and for all activities that occur under their account.</p>
+
+    <h2>4. Termination of Access</h2>
+    <p>We reserve the right to suspend or terminate access to our services without notice for any breach of these terms.</p>
+
+    <h2>5. Modifications</h2>
+    <p>Tech Cure reserves the right to update or modify these terms at any time. Continued use of the service after changes implies acceptance.</p>
+
+    <h2>6. Contact Us</h2>
+    <p>If you have any questions or concerns regarding these terms, feel free to <a href="mailto:sahasagnik279@gmail.com">contact us</a>.</p>
+
+    <p id="footer-note">&copy; <span id="year"></span> Tech Cure — Empowering healthcare through smart innovation.</p>
+  </div>
+
+  <script>
+    // Disable right-click
+    document.addEventListener("contextmenu", e => {
+      e.preventDefault();
+      alert("Right-click is disabled on this portal 🔒");
+    });
+
+    // Auto-update footer year
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
