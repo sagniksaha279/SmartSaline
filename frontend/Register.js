@@ -726,7 +726,6 @@ function checkAutoNightMode() {
 
 // 🚨 Manual Toggle Button
 toggleButton.addEventListener("click", () => {
-  alert("🌙We've switched to Night Mode to reduce eye strain. Enjoy a softer view!");
   applyTheme(!nightMode);
 });
 
