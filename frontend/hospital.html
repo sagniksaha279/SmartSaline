@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hospital Management Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="icon" href="tech_Cure_logo.png" type="image/png">
   <style>
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -36,16 +38,21 @@
     }
     #hospitalImage {
       border-radius: 50%;
-      height: 150px;
-      width: 150px;
+      height: 200px;
+      width: 200px;
       object-fit: cover;
       margin-bottom: 1rem;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
+    .highlight-card {
+      border: 2px solid #007bff !important;
+      background-color: #e6f0ff;
+      transition: background-color 0.5s, border 0.5s;
+    }
   </style>
 </head>
 <body>
-  <div class="container py-4">
+  <div id="patientPortal" class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2>Hospital Management Portal</h2>
@@ -53,6 +60,13 @@
       </div>
       <a href="Register.html" class="btn btn-primary">Back to Admin Portal</a>
     </div>
+    <button id="viewAdminDashboard" class="btn btn-primary text-white fw-semibold shadow-sm px-4 py-2 rounded-pill me-3">
+      <i class="fas fa-user-shield me-2"></i>View Admins
+    </button>
+    <button id="viewPatientGridDashboard" class="btn btn-info text-white fw-semibold shadow-sm px-4 py-2 rounded-pill">
+      <i class="fas fa-users me-2"></i>View Patients
+    </button>
+    <br><br>
 
     <div class="row mb-4">
       <div class="col-md-6">
@@ -135,6 +149,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- Add Admin Modal -->
   <div class="modal fade" id="addAdminModal" tabindex="-1" aria-hidden="true">
@@ -228,7 +243,48 @@
     </div>
   </div>
 
+  <!-- 🧾 Patient Grid Dashboard -->
+  <div id="patientGridDashboard" class="container py-4" style="display: none;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4>📋 Patient Dashboard</h4>
+      <button id="backFromPatientGrid" class="btn btn-sm btn-secondary">Back</button>
+    </div>
+    <table class="table table-borderless">
+      <tbody id="dashboardTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Admin Dashboard View -->
+  <div id="adminDashboard" class="container py-4" style="display: none;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-2">👨‍💼 Admin Dashboard</h4>
+      <button id="backToPortalFromAdmin" class="btn btn-secondary btn-sm">Back</button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm table-striped table-hover text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Admin ID</th>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Floor</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="adminDashboardTableBody"></tbody>
+      </table>
+    </div>
+</div>
+
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="hospital.js"></script>
+  <script>
+  document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+    alert("Right-click is disabled on this portal 🔒");
+  });
+</script>
 </body>
 </html>
