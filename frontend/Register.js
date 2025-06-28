@@ -1,4 +1,3 @@
-// DOM Elements
 const loginSection = document.getElementById('loginSection');
 const hospitalLoginSection = document.getElementById('hospitalLoginSection');
 const patientPortal = document.getElementById('patientPortal');
@@ -702,44 +701,45 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🌙☀️ NIGHT MODE SCRIPT
 const toggleButton = document.getElementById("toggleNightMode");
 let nightMode = false;
-let autoModeApplied = false; // prevent repeated alerts
 
 // 🎨 Function to apply theme
 function applyTheme(isNight, showAlert = false) {
   nightMode = isNight;
   toggleButton.innerHTML = nightMode ? "☀️ Light Mode" : "🌙 Night Mode";
 
-  // Change only background
-  document.body.style.background = nightMode
-    ? "linear-gradient(135deg, rgba(120, 214, 153, 0.91), rgba(236, 236, 130, 0.96))"
-    : "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
+  if (nightMode) {
+      document.body.classList.add("night-mode");
+    } else {
+      document.body.classList.remove("night-mode");
+      document.body.style.background = "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
+      document.body.style.backgroundSize = "";
+      document.body.style.animation = "";
+    }
 
-  // Show alert if required
   if (showAlert) {
     alert(nightMode
       ? "🌙 Good Evening! Switched to Night Mode automatically."
-      : "☀️ Good Morning! Switched to Light Mode automatically.");
+      : "");
   }
 }
 
-// ⏱️ Auto Mode Based on Time
 function checkAutoNightMode() {
   const hours = new Date().getHours();
+
   if (hours >= 18 || hours < 5) {
-    applyTheme(true, true);  // Night mode
-    autoModeApplied = true;
+    if (!nightMode) {
+      applyTheme(true, true);
+    }
   } else if (hours >= 5 && hours < 18) {
-    applyTheme(false, true); // Light mode
-    autoModeApplied = true;
+    if (nightMode) {
+      applyTheme(false, false);
+    }
   }
 }
-
-// 🖱️ Manual Toggle (User choice always respected)
 toggleButton.addEventListener("click", () => {
   applyTheme(!nightMode);
 });
 
-// 🚀 On Page Load
 document.addEventListener("DOMContentLoaded", () => {
   checkAutoNightMode();
 });
