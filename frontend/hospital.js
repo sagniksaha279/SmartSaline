@@ -423,40 +423,39 @@ document.addEventListener('DOMContentLoaded', loadAllData);
 const toggleButton = document.getElementById("toggleNightMode");
 let nightMode = false;
 
-// 🎨 Function to apply theme
+// 🌙 Function to apply theme
 function applyTheme(isNight, showAlert = false) {
   nightMode = isNight;
   toggleButton.innerHTML = nightMode ? "☀️ Light Mode" : "🌙 Night Mode";
 
   if (nightMode) {
-      document.body.classList.add("night-mode");
-    } else {
-      document.body.classList.remove("night-mode");
-      document.body.style.background = "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
-      document.body.style.backgroundSize = "";
-      document.body.style.animation = "";
-    }
+    document.body.classList.add("night-mode");
+    document.body.style.background = "linear-gradient(135deg, rgba(120, 214, 153, 0.91), rgba(236, 236, 130, 0.96))";
+    document.body.style.backgroundSize = "400% 400%";
+    document.body.style.animation = "moveGradient 15s ease infinite";
+  } else {
+    document.body.classList.remove("night-mode");
+    document.body.style.background = "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)";
+    document.body.style.backgroundSize = "";
+    document.body.style.animation = "";
+  }
 
-  if (showAlert) {
-    alert(nightMode
-      ? "🌙 Good Evening! Switched to Night Mode automatically."
-      : "");
+  if (showAlert && nightMode) {
+    alert("🌙 Good Evening! Switched to Night Mode automatically.");
   }
 }
 
+// ⏰ Auto toggle by time
 function checkAutoNightMode() {
   const hours = new Date().getHours();
-
   if (hours >= 18 || hours < 5) {
-    if (!nightMode) {
-      applyTheme(true, true);
-    }
-  } else if (hours >= 5 && hours < 18) {
-    if (nightMode) {
-      applyTheme(false, false);
-    }
+    if (!nightMode) applyTheme(true, true);
+  } else {
+    if (nightMode) applyTheme(false);
   }
 }
+
+// 🔘 Manual toggle
 toggleButton.addEventListener("click", () => {
   applyTheme(!nightMode);
 });
