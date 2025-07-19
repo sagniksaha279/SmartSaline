@@ -1,3 +1,4 @@
+// DOM Elements
 const loginSection = document.getElementById('loginSection');
 const hospitalLoginSection = document.getElementById('hospitalLoginSection');
 const patientPortal = document.getElementById('patientPortal');
@@ -114,25 +115,92 @@ searchInput.addEventListener("input", function () {
   }
 }
 
+// 👁️ Toggle visibility for all password fields with eye icon
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".toggle-password").forEach(icon => {
+    icon.addEventListener("click", function () {
+      const input = document.querySelector(this.getAttribute("toggle"));
+      const isHidden = input.getAttribute("type") === "password";
+      input.setAttribute("type", isHidden ? "text" : "password");
+      this.classList.toggle("fa-eye");
+      this.classList.toggle("fa-eye-slash");
+    });
+  });
+});
 
-  document.getElementById("exportBtn").addEventListener("click", function () {
-    const rows = Array.from(document.querySelectorAll("#dashboardTableBody tr"));
-    const csv = ["Patient ID,Emergency"];
-    rows.forEach(row => {
-      if (row.style.display !== "none") {
-        const cols = row.querySelectorAll("td");
-        const rowData = Array.from(cols).map(td => td.textContent.trim()).join(",");
-        csv.push(rowData);
+
+
+//EXPORT BUTTON
+document.getElementById("exportBtn").addEventListener("click", async function () {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Patient Dashboard");
+
+  // Create header row (16 columns: 8x Patient ID & Emergency)
+  const header = [];
+  for (let i = 0; i < 8; i++) {
+    header.push("Patient ID", "Emergency");
+  }
+  sheet.addRow(header);
+
+  // Collect rows from the dashboard table
+  const rows = Array.from(document.querySelectorAll("#dashboardTableBody tr"));
+  rows.forEach(row => {
+    if (row.style.display === "none") return;
+
+    const dataRow = [];
+    const styles = [];
+
+    row.querySelectorAll("td").forEach((td, i) => {
+      const text = td.textContent.trim();
+      dataRow.push(text);
+
+      // Style for emergency status
+      if (i % 2 === 1) {
+        styles.push(text === "YES" ? "red" : "green");
+      } else {
+        styles.push(null); // No style for ID
       }
     });
-    const blob = new Blob([csv.join("\n")], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "patient-dashboard.csv";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+
+    const addedRow = sheet.addRow(dataRow);
+
+    // Apply background colors
+    styles.forEach((color, i) => {
+      if (color) {
+        addedRow.getCell(i + 1).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: color === 'red' ? 'FFFF0000' : 'FFCCFFCC' } // Red or Green
+        };
+        addedRow.getCell(i + 1).font = { color: { argb: 'FF000000' }, bold: true };
+        addedRow.getCell(i + 1).alignment = { horizontal: 'center' };
+      }
+    });
   });
+
+  // Auto width
+  sheet.columns.forEach(col => {
+    let maxLen = 10;
+    col.eachCell({ includeEmpty: true }, cell => {
+      const len = (cell.value || "").toString().length;
+      if (len > maxLen) maxLen = len;
+    });
+    col.width = maxLen + 2;
+  });
+
+  // Generate and download the file
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "PatientDashboard.xlsx";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+
+
 
 // Fetch drop count every minute
 fetchDropCount();
@@ -698,13 +766,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// 🌙☀️ NIGHT MODE SCRIPT
+//NIGHT SCRIPT
 const toggleButton = document.getElementById("toggleNightMode");
 let nightMode = false;
 function applyTheme(isNight, showAlert = false) {
   nightMode = isNight;
   toggleButton.innerHTML = nightMode ? "☀️ Light Mode" : "🌙 Night Mode";
-  
+
   if (nightMode) {
     document.body.classList.add("night-mode");
     document.body.style.background = "linear-gradient(135deg, rgba(120, 214, 153, 0.91), rgba(236, 236, 130, 0.96))";
@@ -721,6 +789,8 @@ function applyTheme(isNight, showAlert = false) {
     alert("🌙 Good Evening! Switched to Night Mode automatically.");
   }
 }
+
+// ⏰ Auto toggle by time
 function checkAutoNightMode() {
   const hours = new Date().getHours();
   if (hours >= 18 || hours < 5) {
