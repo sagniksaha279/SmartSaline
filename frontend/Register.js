@@ -208,13 +208,17 @@ setInterval(fetchDropCount, 5000);
 
 document.getElementById("patientsList").scrollIntoView({ behavior: "smooth" });
 
+
+
+
 // Admin login logic
 loginForm.addEventListener('submit', async function(e) {
   e.preventDefault();
 
   const hospitalId = document.getElementById('hospitalId').value.trim();
   const adminId = document.getElementById('adminId').value.trim();
-  const password = document.getElementById('password').value.trim();
+  const password = document.getElementById('adminPassword').value.trim();
+
 
   if (!hospitalId || !adminId || !password) {
     loginResult.textContent = 'All fields are required';
@@ -377,7 +381,7 @@ hospitalLoginForm.addEventListener('submit', async function(e) {
   e.preventDefault();
 
   const hospitalId = document.querySelector('#hospitalLoginForm #hospitalId').value.trim();
-  const password = document.querySelector('#hospitalLoginForm #password').value.trim();
+  const password = document.querySelector('#hospitalLoginForm #hospitalPassword').value.trim();
   const resultDisplay = document.getElementById('hospitalLoginResult');
 
   if (!hospitalId || !password) {
