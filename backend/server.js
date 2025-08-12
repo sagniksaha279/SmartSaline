@@ -94,21 +94,28 @@ app.get('/api/admins', async (req, res) => {
 // ✅ Add new admin
 app.post('/api/admins', async (req, res) => {
   try {
-    const { admin_id, name, password, contact, floor, ward, check_hospital_id } = req.body;
+    const { admin_id, name, password, contact, floor, hospital_id } = req.body;
 
-    if (!admin_id || !name || !password || !contact || !floor || !ward || !check_hospital_id) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!admin_id || !name || !password || !hospital_id) {
+      return res.status(400).json({ message: 'All required fields must be filled' });
     }
 
-    await pool.query(`
-      INSERT INTO admin (admin_id, name, password, contact, floor, ward, check_hospital_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `, [admin_id, name, password, contact, floor, ward, check_hospital_id]);
+    // Convert hospital_id to number if it's a numeric string
+    const hospitalIdValue = isNaN(hospital_id) ? hospital_id : Number(hospital_id);
 
-    res.json({ success: true });
+    await pool.query(
+      `INSERT INTO admin (admin_id, name, password, contact, floor, check_hospital_id)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [admin_id, name, password, contact, floor, hospitalIdValue]
+    );
+
+    res.json({ success: true, message: 'Admin added successfully' });
   } catch (err) {
-    console.error('Error adding admin:', err.message);
-    res.status(500).json({ error: 'Database error' });
+    console.error('Error saving admin:', err.message);
+    res.status(500).json({ 
+      message: 'Database error',
+      details: err.message 
+    });
   }
 });
 
