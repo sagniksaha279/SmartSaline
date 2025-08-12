@@ -142,6 +142,38 @@ app.get('/api/patients', async (req, res) => {
   }
 });
 
+
+// ✅ Add new patient
+app.post('/api/patients', async (req, res) => {
+  try {
+    const {
+      patient_id,
+      name,
+      age,
+      gender,
+      contact_number,
+      current_condition,
+      medical_history
+    } = req.body;
+
+    if (!patient_id || !name || !age || !gender) {
+      return res.status(400).json({ error: 'Required fields are missing' });
+    }
+
+    await pool.query(`
+      INSERT INTO patients 
+      (patient_id, name, age, gender, contact_number, current_condition, medical_history, admission_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+    `, [patient_id, name, age, gender, contact_number || null, current_condition || null, medical_history || null]);
+
+    res.json({ success: true, message: 'Patient added successfully' });
+  } catch (err) {
+    console.error('Error adding patient:', err.message);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+
 // ✅ Get one patient by ID
 app.get('/api/patient/:pid', async (req, res) => {
   try {
