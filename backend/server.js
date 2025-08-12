@@ -20,7 +20,6 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   connectTimeout: 10000,    
- // acquireTimeout: 10000,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -148,7 +147,6 @@ app.get('/api/patients', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
-
 
 // ✅ Add new patient
 app.post('/api/patients', async (req, res) => {
@@ -363,6 +361,7 @@ app.get('/api/emergency-status/:patientId', async (req, res) => {
   }
 });
 
+
 // Get Emergency Patients
 app.get('/api/emergency-patients', async (req, res) => {
   try {
@@ -377,30 +376,6 @@ app.get('/api/emergency-patients', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
-
-// Clear Emergency Endpoint
-app.post('/api/clear-emergency', async (req, res) => {
-  try {
-    const { patientId } = req.body;
-
-    if (!patientId) {
-      return res.status(400).json({ error: 'Patient ID is required' });
-    }
-
-    await pool.query(`
-      UPDATE patients 
-      SET emergency_status = 0
-      WHERE patient_id = ?
-    `, [patientId]);
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Error clearing emergency:', err.message);
-    res.status(500).json({ error: 'Database error' });
-  }
-});
-
-
 /*----------------------------------------- */
 /*___REQUEST TRIAL ______*/
 app.post("/request-saline-trial", async (req, res) => {
@@ -462,6 +437,8 @@ SmartSaline Web System
   }
 });
 
+
+
 // Fallback error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
@@ -470,46 +447,23 @@ app.use((err, req, res, next) => {
 
 app.get('/', (req, res) => {
   res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>SmartSaline Backend</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f8fb;
-          color: #333;
-          text-align: center;
-          padding: 50px;
-        }
-        h1 {
-          font-size: 2.5rem;
-          color: #007BFF;
-        }
-        p {
-          font-size: 1.2rem;
-        }
-        a {
-          color: #28a745;
-          text-decoration: none;
-          font-weight: bold;
-        }
-        a:hover {
-          text-decoration: underline;
-        }
-      </style>
-    </head>
-    <body>
-      <h1>🩺 SmartSaline Backend API</h1>
-      <p>Welcome to the backend server of the SmartSaline IV Monitoring System.</p>
-      <p>👉 Visit the frontend: <a href="https://smartsaline.netlify.app" target="_blank">SmartSaline Portal</a></p>
-      <p>✅ Thank you for visiting the backend portal.</p>
-    </body>
-    </html>
+    <h1>🩺 SmartSaline Backend API</h1>
+    <p>This is the backend server for the SmartSaline IV Monitoring System.</p>
+    <ul>
+      <li>✅ <strong>POST</strong> /api/esp32-data – Data upload from ESP32</li>
+      <li>✅ <strong>GET</strong> /api/patient/:id – Patient monitoring</li>
+      <li>✅ <strong>POST</strong> /api/emergency-stop – Trigger manual emergency</li>
+    </ul>
+    <p>Visit the frontend: <a href="https://smartsaline.netlify.app" target="_blank">SmartSaline Portal</a></p>
   `);
 });
 
+
 // Start server
 module.exports = app;
+
+// Start server
+// const PORT = 3000;
+// app.listen(PORT, () => {
+//   console.log(`🚀 SmartSaline Backend running at http://localhost:${PORT}`);
+// });
