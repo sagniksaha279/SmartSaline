@@ -8,7 +8,7 @@ const app = express();
 // Allow all origins (safe for dev, restrict in production)
 app.use(cors());
 app.get("/favicon.ico", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "favicon.ico"));
+  res.sendFile(path.join(__dirname, "../backend/public"));
 });
 app.use(express.json());
 
